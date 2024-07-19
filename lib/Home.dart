@@ -43,99 +43,102 @@ class _HomeState extends State<Home> {
       appBar: AppBar(
         title: const Text('CRUD Operations'),
       ),
-      body: Column(
-        children: [
-          TextField(
-            controller: _controller,
-            decoration: const InputDecoration(
-              labelText: 'Enter name',
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            TextField(
+              controller: _controller,
+              decoration: const InputDecoration(
+                labelText: 'Enter name',
+              ),
             ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (_controller.text.isNotEmpty) {
-                addData(_controller.text);
-                _controller.clear();
-              }
-            },
-            child: const Text('Send'),
-          ),
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream: getData(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                if (snapshot.hasError) {
-                  return const Center(child: Text('Something went wrong'));
+            ElevatedButton(
+              onPressed: () {
+                if (_controller.text.isNotEmpty) {
+                  addData(_controller.text);
+                  _controller.clear();
                 }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return const Center(child: Text('No data available'));
-                }
-
-                return ListView.builder(
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    var doc = snapshot.data!.docs[index];
-                    var data = doc.data() as Map<String, dynamic>;
-                    var name = data['name'];
-
-                    return ListTile(
-                      leading: IconButton(
-                        onPressed: () {
-                          deleteData(doc.id);
-                        },
-                        icon: const Icon(Icons.delete),
-                      ),
-                      title: Text(name),
-                      trailing: IconButton(
-                        onPressed: () {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              var updateController =
-                                  TextEditingController(text: name);
-                              return AlertDialog(
-                                title: const Text('Update Name'),
-                                content: TextField(
-                                  controller: updateController,
-                                  decoration: const InputDecoration(
-                                      labelText: 'Enter new name'),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed: () {
-                                      if (updateController.text.isNotEmpty) {
-                                        updateData(
-                                            doc.id, updateController.text);
-                                        Navigator.of(context).pop();
-                                      }
-                                    },
-                                    child: const Text('Update'),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: const Text('Cancel'),
-                                  ),
-                                ],
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.edit),
-                      ),
-                    );
-                  },
-                );
               },
+              child: const Text('Send'),
             ),
-          ),
-        ],
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream: getData(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.hasError) {
+                    return const Center(child: Text('Something went wrong'));
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(child: Text('No data available'));
+                  }
+
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      var doc = snapshot.data!.docs[index];
+                      var data = doc.data() as Map<String, dynamic>;
+                      var name = data['name'];
+
+                      return ListTile(
+                        leading: IconButton(
+                          onPressed: () {
+                            deleteData(doc.id);
+                          },
+                          icon: const Icon(Icons.delete),
+                        ),
+                        title: Text(name),
+                        trailing: IconButton(
+                          onPressed: () {
+                            showDialog(
+                              context: context,
+                              builder: (context) {
+                                var updateController =
+                                    TextEditingController(text: name);
+                                return AlertDialog(
+                                  title: const Text('Update Name'),
+                                  content: TextField(
+                                    controller: updateController,
+                                    decoration: const InputDecoration(
+                                        labelText: 'Enter new name'),
+                                  ),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        if (updateController.text.isNotEmpty) {
+                                          updateData(
+                                              doc.id, updateController.text);
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+                                      child: const Text('Update'),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text('Cancel'),
+                                    ),
+                                  ],
+                                );
+                              },
+                            );
+                          },
+                          icon: const Icon(Icons.edit),
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
