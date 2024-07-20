@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:demo/FirebaseService.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get/get.dart';
@@ -11,31 +12,8 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  final CollectionReference data =
-      FirebaseFirestore.instance.collection('userdata');
+  FirebaseService service = FirebaseService();
   final TextEditingController _controller = TextEditingController();
-
-  Future<void> addData(String name) {
-    return data.add({
-      'name': name,
-      'timestamp': Timestamp.now(),
-    });
-  }
-
-  Stream<QuerySnapshot> getData() {
-    return data.snapshots();
-  }
-
-  Future<void> deleteData(String docId) {
-    return data.doc(docId).delete();
-  }
-
-  Future<void> updateData(String docId, String newName) {
-    return data.doc(docId).update({
-      'name': newName,
-      'timestamp': Timestamp.now(),
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,16 +25,19 @@ class _HomeState extends State<Home> {
         padding: const EdgeInsets.all(8.0),
         child: Column(
           children: [
-            TextField(
-              controller: _controller,
-              decoration: const InputDecoration(
-                labelText: 'Enter name',
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: TextField(
+                controller: _controller,
+                decoration: const InputDecoration(
+                  labelText: 'Enter name',
+                ),
               ),
             ),
             ElevatedButton(
               onPressed: () {
                 if (_controller.text.isNotEmpty) {
-                  addData(_controller.text);
+                  service.addData(_controller.text);
                   _controller.clear();
                 }
               },
@@ -64,7 +45,7 @@ class _HomeState extends State<Home> {
             ),
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
-                stream: getData(),
+                stream: service.getData(),
                 builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
                   if (snapshot.hasError) {
                     return const Center(child: Text('Something went wrong'));
@@ -88,7 +69,7 @@ class _HomeState extends State<Home> {
                       return ListTile(
                         leading: IconButton(
                           onPressed: () {
-                            deleteData(doc.id);
+                            service.deleteData(doc.id);
                           },
                           icon: const Icon(Icons.delete),
                         ),
@@ -111,7 +92,7 @@ class _HomeState extends State<Home> {
                                     TextButton(
                                       onPressed: () {
                                         if (updateController.text.isNotEmpty) {
-                                          updateData(
+                                          service.updateData(
                                               doc.id, updateController.text);
                                           Navigator.of(context).pop();
                                         }
